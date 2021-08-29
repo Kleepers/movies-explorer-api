@@ -1,6 +1,8 @@
 const allowedCors = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://kleepers.diploma.nomoredomains.club',
+  'https://kleepers.diploma.nomoredomains.club',
 ];
 
 const DEFAULT_ALLOWED_METHODS = 'GET, HEAD, PUT, PATCH, POST, DELETE';
