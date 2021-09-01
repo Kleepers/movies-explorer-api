@@ -25,31 +25,38 @@ module.exports.getUser = (req, res, next) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные');
       }
+      throw err;
     })
     .catch(next);
 };
 
 module.exports.updateUser = (req, res, next) => {
   const { email, name } = req.body;
-  if (req.body.email && req.body.name) {
-    return User.findByIdAndUpdate(req.user._id, { email, name }, { new: true, runValidators: true })
-      .then((user) => {
-        if (!user) {
-          throw new NotFoundError('Пользователь не найден');
-        }
-        res.send(user);
-      })
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          throw new BadRequestError('Переданы некорректные данные для обновления профиля');
-        }
-        if (err.name === 'CastError') {
-          throw new BadRequestError('Переданы некорректные данные для обновления профиля');
-        }
-      })
-      .catch(next);
-  }
-  throw new BadRequestError('Переданы некорректные данные для обновления профиля');
+  return User.findOne({ email })
+    .then((userChecked) => {
+      if (userChecked) {
+        throw new ConflictError('Существует пользователь с таким email');
+      } else {
+        return User.findByIdAndUpdate(req.user._id,
+          { email, name }, { new: true, runValidators: true })
+          .then((user) => {
+            if (!user) {
+              throw new NotFoundError('Пользователь не найден');
+            }
+            res.send(user);
+          });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        throw new BadRequestError('Переданы некорректные данные для обновления профиля');
+      }
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Переданы некорректные данные для обновления профиля');
+      }
+      throw err;
+    })
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -72,6 +79,7 @@ module.exports.createUser = (req, res, next) => {
         if (err.name === 'MongoError' && err.code === 11000) {
           throw new ConflictError('Адрес электронной почты уже используется.');
         }
+        throw err;
       }))
     .catch(next);
 };

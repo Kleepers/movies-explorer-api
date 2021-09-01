@@ -36,9 +36,9 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.send(err);
         throw new BadRequestError('Переданы некорректные данные для создания фильма');
       }
+      throw err;
     })
     .catch(next);
 };
@@ -54,8 +54,8 @@ module.exports.deleteMovie = (req, res, next) => {
       if (userId !== movie.owner.toString()) {
         throw new ForbiddenError('Вы пытаетесь удалить чужой фильм');
       } else {
-        Movie.findByIdAndDelete(id)
-          .then((film) => res.send(film));
+        return movie.remove()
+          .then(() => res.status(200).send({ message: 'Фильм удалён' }));
       }
     })
     .catch((err) => {
@@ -65,6 +65,7 @@ module.exports.deleteMovie = (req, res, next) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные для удаления фильма');
       }
+      throw err;
     })
     .catch(next);
 };
@@ -77,6 +78,7 @@ module.exports.getMovies = (req, res, next) => {
       if (err.statusCode === 404 || err.statusCode === 403) {
         throw err;
       }
+      throw err;
     })
     .catch(next);
 };

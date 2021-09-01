@@ -9,9 +9,15 @@ const validateUrl = (url) => {
   throw new Error('Неверная ссылка');
 };
 
+const validateObjectId = celebrate({
+  params: Joi.object().keys({
+    movieId: Joi.string().required().hex().length(24),
+  }),
+});
+
 const validateCreateUser = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email({ tlds: { allow: false } }).messages({
+    email: Joi.string().required().email({ tlds: { allow: false } }).messages({
       'string.pattern.base': 'В поле "email" нужно ввести электронную почту',
       'string.empty': 'Поле "email" должно быть заполнено',
     }),
@@ -19,17 +25,18 @@ const validateCreateUser = celebrate({
       'string.min': 'Минимальная длина поля "password" - 8',
       'string.empty': 'Поле "password" должно быть заполнено',
     }),
-    name: Joi.string().min(2).max(30).messages({
-      'string.min': 'Минимальная длина поля "name" - 2',
-      'string.max': 'Максимальная длина поля "name" - 30',
-      'string.empty': 'Поле "name" должно быть заполнено',
-    }),
-  }, { abortEarly: false }),
+    name: Joi.string().required().min(2).max(30)
+      .messages({
+        'string.min': 'Минимальная длина поля "name" - 2',
+        'string.max': 'Максимальная длина поля "name" - 30',
+        'string.empty': 'Поле "name" должно быть заполнено',
+      }),
+  }),
 });
 
 const validateLogin = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email({ tlds: { allow: false } }).messages({
+    email: Joi.string().required().email({ tlds: { allow: false } }).messages({
       'string.pattern.base': 'В поле "email" нужно ввести электронную почту',
       'string.empty': 'Поле "email" должно быть заполнено',
     }),
@@ -42,15 +49,16 @@ const validateLogin = celebrate({
 
 const validateUserUpdate = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email({ tlds: { allow: false } }).messages({
+    email: Joi.string().required().email({ tlds: { allow: false } }).messages({
       'string.pattern.base': 'В поле "email" нужно ввести электронную почту',
       'string.empty': 'Поле "email" должно быть заполнено',
     }),
-    name: Joi.string().min(2).max(30).messages({
-      'string.min': 'Минимальная длина поля "name" - 2',
-      'string.max': 'Максимальная длина поля "name" - 30',
-      'string.empty': 'Поле "name" должно быть заполнено',
-    }),
+    name: Joi.string().required().min(2).max(30)
+      .messages({
+        'string.min': 'Минимальная длина поля "name" - 2',
+        'string.max': 'Максимальная длина поля "name" - 30',
+        'string.empty': 'Поле "name" должно быть заполнено',
+      }),
   }),
 });
 
@@ -76,8 +84,8 @@ const validateCreateMovie = celebrate({
     thumbnail: Joi.string().required().custom(validateUrl).messages({
       'string.empty': 'Невалидная ссылка "thumbnail"',
     }),
-    movieId: Joi.string().required().messages({
-      'string.empty': 'Поле "movieId" должно быть заполнено',
+    movieId: Joi.number().required().messages({
+      'number.empty': 'Поле "movieId" должно быть заполнено',
     }),
     nameRU: Joi.string().required().messages({
       'string.empty': 'Поле "nameRU" должно быть заполнено',
@@ -93,4 +101,5 @@ module.exports = {
   validateLogin,
   validateUserUpdate,
   validateCreateMovie,
+  validateObjectId,
 };
